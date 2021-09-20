@@ -8,14 +8,12 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentResultListener
+import androidx.fragment.app.*
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.norihiro.walkinbingo.databinding.FragmentCheckPhotoDialogBinding
 import java.lang.ClassCastException
@@ -26,15 +24,25 @@ import java.lang.IllegalStateException
 private const val ARG_PARAM1 = "uri"
 private const val ARG_PARAM2 = "param2"
 
+sealed class DialogState<T : DialogFragment> {
+    data class Ok<T : DialogFragment>(val dialog: T) : DialogState<T>()
+    data class Cancel<T : DialogFragment>(val dialog: T) : DialogState<T>()
+    data class Dismiss<T : DialogFragment>(val dialog: T) : DialogState<T>()
+}
+
 /**
  * A simple [Fragment] subclass.
  * Use the [CheckPhotoDialogFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class CheckPhotoDialogFragment : BottomSheetDialogFragment() {
+class CheckPhotoDialogFragment : DialogFragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    private val viewModel: MainViewModel by activityViewModels()
+
+    val args: CheckPhotoDialogFragmentArgs by navArgs()
 
     private lateinit var binding: FragmentCheckPhotoDialogBinding
     internal lateinit var listener: CheckPhotoDialogListener
@@ -42,6 +50,7 @@ class CheckPhotoDialogFragment : BottomSheetDialogFragment() {
     interface CheckPhotoDialogListener {
         fun onDialogPositiveClick(dialog: DialogFragment)
         fun onDialogNegativeClick(dialog: DialogFragment)
+        fun onDialogDismiss(dialog: DialogFragment)
     }
 
     override fun onAttach(context: Context) {
@@ -65,7 +74,7 @@ class CheckPhotoDialogFragment : BottomSheetDialogFragment() {
 //        inflater: LayoutInflater, container: ViewGroup?,
 //        savedInstanceState: Bundle?
 //    ): View? {
-//        // Inflate the layout for this fragment
+        // Inflate the layout for this fragment
 //        _binding = FragmentCheckPhotoDialogBinding.inflate(inflater, container, false)
 //        val view = binding.root
 //        return view
@@ -80,23 +89,41 @@ class CheckPhotoDialogFragment : BottomSheetDialogFragment() {
 //            val source = ImageDecoder.createSource()
 //            binding.imageView.setImageURI(Uri.parse(param1))
 
-            builder.setView(binding.root)
-                .setTitle("Alert Message")
-                .setMessage("〇〇を見つけた")
-                .setPositiveButton("OK",
+//            builder.setView(binding.root)
+            builder.setPositiveButton("OK",
                 DialogInterface.OnClickListener { dialog, which ->
-                    listener.onDialogPositiveClick(this)
+//                    listener.onDialogPositiveClick(this)
+//                    dialog.dismiss()
+                    viewModel.state.value = DialogState.Ok(this)
                 })
-                .setNegativeButton("Cancel",
-                DialogInterface.OnClickListener { dialog, which ->
-//                    listener.onDialogNegativeClick(this)
-                    dialog.cancel()
-                })
+//                .setNegativeButton("Cancel",
+//                DialogInterface.OnClickListener { dialog, which ->
+////                    listener.onDialogNegativeClick(this)
+//                    dialog.cancel()
+//                })
+//                .setNeutralButton("OK",
+//                    DialogInterface.OnClickListener { dialog, which ->
+//                        dialog.dismiss()
+//                    })
+            if (args.labelName != null){
+                builder.setTitle("${args.labelName}を見つけた")
+            }
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        viewModel.state.value = DialogState.Cancel(this)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        viewModel.state.value = DialogState.Dismiss(this)
+    }
+
     companion object {
+        private const val TAG = "CheckPhotoDialogFragment"
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

@@ -1,21 +1,18 @@
 package com.norihiro.walkinbingo
 
-import android.app.Activity
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TableRow
 import android.widget.TextView
-import androidx.core.os.bundleOf
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentResultListener
-import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.*
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.norihiro.walkinbingo.databinding.FragmentBingoBinding
-import com.norihiro.walkinbingo.databinding.FragmentCheckPhotoDialogBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,15 +24,19 @@ private const val ARG_PARAM2 = "param2"
  * Use the [BingoFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class BingoFragment : Fragment() {
+class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListener{
+
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
+    private val viewModel: MainViewModel by activityViewModels()
+    private lateinit var bingoListAdapter: CustomAdapter
+
+    val args: BingoFragmentArgs by navArgs()
+
     private var _binding: FragmentBingoBinding? = null
     private val binding get() = _binding!!
-
-    val words = listOf("りんご", "バナナ", "ぶどう", "メロン", "スイカ", "さくらんぼ", "みかん", "もも", "パイナップル", "キウイ", "イチゴ")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,14 +45,20 @@ class BingoFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
+        Log.d(TAG, "onCreate()")
+        Log.d(TAG, "viewModel.bingoLabels: ${viewModel.bingoCard.value}")
+
         // 設定した requestKey を元にbundleを受け取る
         setFragmentResultListener("request_key") { requestKey, bundle ->
-            val result1 = bundle.getString("result_key1") // "result1"
-            val result2 = bundle.getInt("result_key2")    // 222
+            val labelName = bundle.getString("result_key1")
+            val savedUri = bundle.getString("result_key2")    // 222
 
+//            val action = BingoFragmentDirections.actionBingoFragmentToCheckPhotoDialogFragment(
+//                result1
+//            )
+//            findNavController().navigate(action)
 
-            Log.d("fragmentResultListener", "RESULT_OK return:$result1")
-            binding.textView6.text = result1
+            viewModel.setHit(labelName, savedUri)
         }
 
     }
@@ -59,72 +66,56 @@ class BingoFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        Log.d(TAG, "onCreateView()")
+
         // Inflate the layout for this fragment
         _binding = FragmentBingoBinding.inflate(inflater, container, false)
-        val view = binding.root
 
-        val shuffledWords = words.shuffled()
-
-        Log.d("debug", "binding.tableLayout.childCount = " + binding.tableLayout.childCount)
-        val tableLayout = binding.tableLayout
-        for (i in 0 until tableLayout.childCount){
-            val tableRow = tableLayout.getChildAt(i) as TableRow
-            Log.d("debug", "tableRow.childCount = " + tableRow.childCount)
-            for (j in 0 until tableRow.childCount){
-                val square = tableRow.getChildAt(j) as TextView
-//                各マスの初期化
-                square.text = shuffledWords[i*3+j]
-
-//                各マスのClickListener
-                square.setOnClickListener {
-                    if (checkHit(it)){
-                        Log.d("Square: $it", "checkHit() is True")
-                        (it as TextView).text = "Hit"
-                    }
-                    checkBingo()
-                }
+        binding.gridRecyclerView.run {
+            layoutManager = GridLayoutManager(context, 3, RecyclerView.VERTICAL, false)
+            adapter = CustomAdapter(this@BingoFragment.viewModel).also {
+                bingoListAdapter = it
             }
+            setHasFixedSize(true)
         }
 
-        binding.button3.setOnClickListener {
+        binding.cameraButton.setOnClickListener {
             findNavController().navigate(R.id.action_bingoFragment_to_permissionFragment)
         }
 
-        return view
+        return binding.root
     }
 
-    private fun checkBingo() {
-        var hits = mutableListOf<Boolean>()
-        val tableLayout = binding.tableLayout
-        for (i in 0 until tableLayout.childCount){
-            val tableRow = tableLayout.getChildAt(i) as TableRow
-            for (j in 0 until tableRow.childCount){
-                val square = tableRow.getChildAt(j) as TextView
-                hits.add(square.text == "Hit")
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated()")
+        Log.d(TAG, "BingoLabels: ${viewModel.bingoCard.value}")
+
+        viewModel.run {
+            bingoCard.observe(viewLifecycleOwner, {
+                bingoListAdapter.submitList(it)
+                if (viewModel.isBingo()) {
+                    findNavController().navigate(R.id.action_bingoFragment_to_resultDialogFragment)
+                }
+            })
+
+            state.observe(viewLifecycleOwner, {
+                when (it) {
+                    is DialogState.Ok -> {}
+                    is DialogState.Cancel -> {}
+                    is DialogState.Dismiss -> {
+                        Log.d(TAG, "onDialogDismiss()")
+
+                    }
+                }
+            })
         }
-        Log.d("checkBingo()", "hits[] = $hits")
 
-        var dialog = ""
-
-        if (hits[0] && hits[1] && hits[2]) dialog += "BINGO123"
-        if (hits[3] && hits[4] && hits[5]) dialog += "BINGO456"
-        if (hits[6] && hits[7] && hits[8]) dialog += "BINGO789"
-        if (hits[0] && hits[3] && hits[6]) dialog += "BINGO147"
-        if (hits[1] && hits[4] && hits[7]) dialog += "BINGO258"
-        if (hits[2] && hits[5] && hits[8]) dialog += "BINGO369"
-        if (hits[0] && hits[4] && hits[8]) dialog += "BINGO159"
-        if (hits[2] && hits[4] && hits[6]) dialog += "BINGO357"
-
-        binding.textView5.text = dialog
-    }
-
-    fun checkHit(view: View): Boolean {
-        return true
     }
 
     companion object {
+        private const val TAG = "BingoFragment"
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.
@@ -142,5 +133,17 @@ class BingoFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+    }
+
+    override fun onDialogNegativeClick(dialog: DialogFragment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onDialogDismiss(dialog: DialogFragment) {
+
+
     }
 }

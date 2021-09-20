@@ -25,7 +25,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraxActivity : AppCompatActivity(), CheckPhotoDialogFragment.CheckPhotoDialogListener {
+class CameraxActivity : AppCompatActivity(){
 //    private lateinit var binding: ActivityCameraxBinding
 
     private var imageCapture: ImageCapture? = null
@@ -227,7 +227,7 @@ class CameraxActivity : AppCompatActivity(), CheckPhotoDialogFragment.CheckPhoto
     }
 
     companion object {
-        private const val TAG = "CameraXBasic"
+        private const val TAG = "CameraXActivity"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -259,15 +259,5 @@ class CameraxActivity : AppCompatActivity(), CheckPhotoDialogFragment.CheckPhoto
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-    }
-
-    override fun onDialogPositiveClick(dialog: DialogFragment) {
-        intent.putExtra("picture_uri", "result")
-        setResult(Activity.RESULT_OK, intent)
-        finish()
-    }
-
-    override fun onDialogNegativeClick(dialog: DialogFragment) {
-        TODO("Not yet implemented")
     }
 }

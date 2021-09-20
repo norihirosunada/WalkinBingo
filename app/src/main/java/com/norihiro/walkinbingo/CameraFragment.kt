@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.Rational
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -142,10 +143,10 @@ class CameraFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        setFragmentResult("request_key", bundleOf(
-            "result_key1" to "result1",
-            "result_key2" to 222
-        ))
+//        setFragmentResult("request_key", bundleOf(
+//            "result_key1" to "result1",
+//            "result_key2" to 222
+//        ))
 
         // Inflate the layout for this fragment
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
@@ -290,10 +291,18 @@ class CameraFragment : Fragment() {
         // Unbind use cases before rebinding
         cameraProvider.unbindAll()
 
+//        val viewPort =  ViewPort.Builder(Rational(1, 1), rotation).build()
+
+
         try {
+            val useCaseGroup = UseCaseGroup.Builder()
+                .addUseCase(preview!!)
+                .addUseCase(imageAnalyzer!!)
+                .addUseCase(imageCapture!!)
+                .setViewPort(binding.viewFinder.viewPort!!)
+                .build()
             // Bind use cases to camera
-            cameraProvider.bindToLifecycle(
-                this, cameraSelector, preview, imageCapture, imageAnalyzer)
+            cameraProvider.bindToLifecycle(this, cameraSelector, useCaseGroup)
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(binding.viewFinder.surfaceProvider)
@@ -359,7 +368,6 @@ class CameraFragment : Fragment() {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 // Update the gallery thumbnail with latest picture taken
 //                                setGalleryThumbnail(savedUri)
-                                setPreviewImage(savedUri)
                             }
 
                             // Implicit broadcasts will be ignored for devices running API level >= 24
@@ -382,6 +390,15 @@ class CameraFragment : Fragment() {
                             ) { _, uri ->
                                 Log.d(TAG, "Image capture scanned into media store: $uri")
                             }
+
+                            view?.post {
+                                val action = CameraFragmentDirections.actionCameraFragmentToAnalysisResultFragment(
+                                    savedUri.toString()
+                                )
+                                findNavController().navigate(action)
+                            }
+//                            setPreviewImage(savedUri)
+
                         }
                     })
 
@@ -488,7 +505,7 @@ class CameraFragment : Fragment() {
     }
 
     // ML Kit Label Images
-    private class LabelAnalyzer : ImageAnalysis.Analyzer {
+    class LabelAnalyzer : ImageAnalysis.Analyzer {
 
         override fun analyze(imageProxy: ImageProxy) {
             val mediaImage = imageProxy.image
@@ -535,7 +552,7 @@ class CameraFragment : Fragment() {
                 }
             }
 
-        private const val TAG = "WalkinBingo"
+        private const val TAG = "CameraXFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val PHOTO_EXTENSION = ".jpg"
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
