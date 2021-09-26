@@ -1,5 +1,7 @@
 package com.norihiro.walkinbingo
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,9 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import com.norihiro.walkinbingo.databinding.FragmentBingoBinding
 import com.norihiro.walkinbingo.databinding.FragmentStartBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,8 +51,31 @@ class StartFragment : Fragment() {
             .apply {
                 newgameButton.run {
                     setOnClickListener {
-                        viewModel.run { initBingo() }
-                        findNavController().navigate(R.id.action_startFragment_to_bingoFragment)
+                        viewModel.run {
+                            initBingo()
+                            val apple = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                                    "://" + resources.getResourcePackageName(R.drawable.fruit_apple)
+                                    + '/' + resources.getResourceTypeName(R.drawable.fruit_apple)
+                                    + '/' + resources.getResourceEntryName(R.drawable.fruit_apple)).toString()
+                            val banana = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                                        "://" + resources.getResourcePackageName(R.drawable.fruit_banana)
+                                        + '/' + resources.getResourceTypeName(R.drawable.fruit_banana)
+                                        + '/' + resources.getResourceEntryName(R.drawable.fruit_banana)).toString()
+                            val grape = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                                    "://" + resources.getResourcePackageName(R.drawable.fruit_grape)
+                                    + '/' + resources.getResourceTypeName(R.drawable.fruit_grape)
+                                    + '/' + resources.getResourceEntryName(R.drawable.fruit_grape)).toString()
+//                            setHit("Smile", apple)
+//                            setHit("Bird", apple)
+//                            setHit("Cat", apple)
+//                            setHit("Dog", banana)
+//                            setHit("Eating", banana)
+//                            setHit("Food", banana)
+//                            setHit("Mobile phone", grape)
+//                            setHit("Toy", grape)
+//                            setHit("Ice", grape)
+                        }
+                        findNavController().navigate(R.id.start_Bingo)
                     }
                 }
             }

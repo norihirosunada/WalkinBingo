@@ -3,8 +3,13 @@
     package="com.norihiro.walkinbingo">
 
     <uses-feature android:name="android.hardware.camera.any" />
-
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.READ_LOGS" />
+
+    <queries>
+        <package android:name="com.deploygate" />
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -13,8 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WalkinBingo">
-        <activity android:name=".StartActivity">
-        </activity>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

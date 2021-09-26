@@ -90,5 +90,5 @@ dependencies {
 
     //
 //    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
-
+    implementation 'com.deploygate:sdk:4.1.0'
 }

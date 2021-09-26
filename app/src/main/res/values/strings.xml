@@ -8,4 +8,6 @@
     <string name="newgame">Start</string>
     <string name="continue_game">Continue</string>
     <string name="setting">Settings</string>
+    <string name="share_hint">Share using</string>
+    <string name="themeText">テーマ：%s</string>
 </resources>

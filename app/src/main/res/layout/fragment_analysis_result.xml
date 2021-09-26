@@ -8,8 +8,6 @@
     tools:context=".AnalysisResultFragment"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
-    <!-- TODO: Update blank fragment layout -->
-
 
     <ImageView
         android:id="@+id/imageView4"

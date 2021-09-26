@@ -42,8 +42,6 @@ class CheckPhotoDialogFragment : DialogFragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
 
-    val args: CheckPhotoDialogFragmentArgs by navArgs()
-
     private lateinit var binding: FragmentCheckPhotoDialogBinding
     internal lateinit var listener: CheckPhotoDialogListener
 
@@ -105,9 +103,9 @@ class CheckPhotoDialogFragment : DialogFragment() {
 //                    DialogInterface.OnClickListener { dialog, which ->
 //                        dialog.dismiss()
 //                    })
-            if (args.labelName != null){
-                builder.setTitle("${args.labelName}を見つけた")
-            }
+//            if (args.labelName != null){
+//                builder.setTitle("${args.labelName}を見つけた")
+//            }
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }

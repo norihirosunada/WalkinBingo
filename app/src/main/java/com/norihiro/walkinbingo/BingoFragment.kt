@@ -1,18 +1,20 @@
 package com.norihiro.walkinbingo
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TableRow
-import android.widget.TextView
+import androidx.core.view.drawToBitmap
 import androidx.fragment.app.*
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.norihiro.walkinbingo.databinding.FragmentBingoBinding
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -46,7 +48,7 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
         }
 
         Log.d(TAG, "onCreate()")
-        Log.d(TAG, "viewModel.bingoLabels: ${viewModel.bingoCard.value}")
+//        Log.d(TAG, "viewModel.bingoLabels: ${viewModel.bingoCard.value}")
 
         // 設定した requestKey を元にbundleを受け取る
         setFragmentResultListener("request_key") { requestKey, bundle ->
@@ -84,6 +86,8 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
             findNavController().navigate(R.id.action_bingoFragment_to_permissionFragment)
         }
 
+//        binding.themeText.text = "${viewModel.theme}を探そう"
+        binding.viewModel = viewModel
         return binding.root
     }
 
@@ -95,8 +99,16 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
         viewModel.run {
             bingoCard.observe(viewLifecycleOwner, {
                 bingoListAdapter.submitList(it)
-                if (viewModel.isBingo()) {
-                    findNavController().navigate(R.id.action_bingoFragment_to_resultDialogFragment)
+                if (isBingo() && countBingo() > bingoNum) {
+                    Log.d(TAG, "Bingo Count: ${viewModel.countBingo()}")
+                    // create image from recycler view
+                    bingoNum = countBingo()
+                    binding.gridRecyclerView.post {
+                        val bitmap = binding.gridRecyclerView.drawToBitmap(config = Bitmap.Config.ARGB_8888)
+                        val action = BingoFragmentDirections.actionBingoFragmentToResultFragment(bitmap)
+                        findNavController().navigate(action)
+                    }
+
                 }
             })
 
