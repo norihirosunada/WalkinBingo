@@ -124,6 +124,11 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
             })
         }
 
+        if (viewModel.isHit){
+            viewModel.isHit = false
+
+        }
+
     }
 
     companion object {

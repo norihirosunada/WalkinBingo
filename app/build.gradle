@@ -1,9 +1,9 @@
 plugins {
     id 'com.android.application'
-    id 'deploygate'
     id 'kotlin-android'
     id 'androidx.navigation.safeargs'
     id 'kotlin-kapt'
+    id 'deploygate'
 //    id 'kotlinx-serialization'
 }
 
@@ -15,8 +15,8 @@ android {
         applicationId "com.norihiro.walkinbingo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

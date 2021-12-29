@@ -29,11 +29,20 @@ class MainViewModel : ViewModel() {
     private val _bingoCard = MutableLiveData<List<BingoLabel>>(emptyList())
     val bingoCard: LiveData<List<BingoLabel>> = _bingoCard.distinctUntilChanged()
 
-    fun initBingo() {
+    var isHit = false
+
+    fun initBingo(gameMode: String) {
         bingoCardRaw.clear()
-        easyLabels.shuffled().subList(0, 9).forEach {
-            val bingoLabel = BingoLabel(labels.indexOf(it), it)
-            bingoCardRaw.add(bingoLabel)
+        if (gameMode == "easy") {
+            easyLabels.shuffled().subList(0, 9).forEach {
+                val bingoLabel = BingoLabel(labels.indexOf(it), it)
+                bingoCardRaw.add(bingoLabel)
+            }
+        }else if (gameMode == "hard") {
+            labels.shuffled().subList(0, 9).forEach {
+                val bingoLabel = BingoLabel(labels.indexOf(it), it)
+                bingoCardRaw.add(bingoLabel)
+            }
         }
         _bingoCard.value = ArrayList(bingoCardRaw)
         bingoNum = 0

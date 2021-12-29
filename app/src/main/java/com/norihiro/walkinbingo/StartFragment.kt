@@ -49,10 +49,18 @@ class StartFragment : Fragment() {
         // Inflate the layout for this fragment
         return FragmentStartBinding.inflate(inflater, container, false)
             .apply {
+                hardMode.run {
+                    setOnClickListener {
+                        viewModel.run {
+                            initBingo("hard")
+                            findNavController().navigate(R.id.start_Bingo)
+                        }
+                    }
+                }
                 newgameButton.run {
                     setOnClickListener {
                         viewModel.run {
-                            initBingo()
+                            initBingo("easy")
                             val apple = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
                                     "://" + resources.getResourcePackageName(R.drawable.fruit_apple)
                                     + '/' + resources.getResourceTypeName(R.drawable.fruit_apple)

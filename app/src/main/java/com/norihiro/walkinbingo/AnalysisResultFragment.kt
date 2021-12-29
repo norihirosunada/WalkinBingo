@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -36,6 +37,8 @@ class AnalysisResultFragment : Fragment() {
     private val binding get() = _binding!!
 
     val args: AnalysisResultFragmentArgs by navArgs()
+
+    private val viewModel: MainViewModel by activityViewModels()
 
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -97,6 +100,9 @@ class AnalysisResultFragment : Fragment() {
         }
 
         binding.submitButton.setOnClickListener {
+
+            viewModel.isHit = true
+
             setFragmentResult("request_key", bundleOf(
                 "result_key1" to labelName,
                 "result_key2" to savedUri.toString()
