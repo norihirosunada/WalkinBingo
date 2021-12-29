@@ -1,5 +1,6 @@
 package com.norihiro.walkinbingo
 
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.drawToBitmap
 import androidx.fragment.app.*
 import androidx.navigation.fragment.findNavController
@@ -61,6 +63,8 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
 //            findNavController().navigate(action)
 
             viewModel.setHit(labelName, savedUri)
+
+            Toast.makeText(context, "$labelName を見つけた！", Toast.LENGTH_LONG).show()
         }
 
     }
@@ -122,11 +126,6 @@ class BingoFragment : Fragment(), CheckPhotoDialogFragment.CheckPhotoDialogListe
                     }
                 }
             })
-        }
-
-        if (viewModel.isHit){
-            viewModel.isHit = false
-
         }
 
     }

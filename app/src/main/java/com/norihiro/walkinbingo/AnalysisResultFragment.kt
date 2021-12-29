@@ -101,8 +101,6 @@ class AnalysisResultFragment : Fragment() {
 
         binding.submitButton.setOnClickListener {
 
-            viewModel.isHit = true
-
             setFragmentResult("request_key", bundleOf(
                 "result_key1" to labelName,
                 "result_key2" to savedUri.toString()

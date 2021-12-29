@@ -29,8 +29,6 @@ class MainViewModel : ViewModel() {
     private val _bingoCard = MutableLiveData<List<BingoLabel>>(emptyList())
     val bingoCard: LiveData<List<BingoLabel>> = _bingoCard.distinctUntilChanged()
 
-    var isHit = false
-
     fun initBingo(gameMode: String) {
         bingoCardRaw.clear()
         if (gameMode == "easy") {
